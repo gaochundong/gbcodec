@@ -1,0 +1,164 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>ai.sangmado.gbcodec</groupId>
+    <artifactId>gbcodec-parent</artifactId>
+    <packaging>pom</packaging>
+    <version>1523.0-SNAPSHOT</version>
+    <name>gbcodec</name>
+    <description>A codec library for gbstandard.</description>
+
+    <modules>
+        <module>netty-codec-jt808</module>
+        <module>netty-codec-jt809</module>
+    </modules>
+
+    <properties>
+
+        <!--build-->
+        <java.version>1.8</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.build.finalName>${project.artifactId}-${project.version}</project.build.finalName>
+        <maven.compiler.source>${java.version}</maven.compiler.source>
+        <maven.compiler.target>${java.version}</maven.compiler.target>
+        <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
+
+        <!--dependencies-->
+        <lombok.version>1.18.8</lombok.version>
+        <guava.version>28.1-jre</guava.version>
+        <netty.version>4.1.45.Final</netty.version>
+
+        <!--gbstandard-->
+        <gbstandard.version>1378.1-SNAPSHOT</gbstandard.version>
+
+        <!--test-->
+        <junit.version>5.6.0</junit.version>
+        <mockito.version>3.2.4</mockito.version>
+
+        <!--plugins-->
+        <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
+        <maven-jar-plugin.version>3.1.1</maven-jar-plugin.version>
+        <maven-assembly-plugin.version>3.1.1</maven-assembly-plugin.version>
+        <maven-surefire-plugin.version>3.0.0-M3</maven-surefire-plugin.version>
+
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+
+            <!--lombok-->
+            <dependency>
+                <groupId>org.projectlombok</groupId>
+                <artifactId>lombok</artifactId>
+                <version>${lombok.version}</version>
+                <scope>provided</scope>
+            </dependency>
+
+            <!--gbcommon-->
+            <dependency>
+                <groupId>ai.sangmado.gbstandard</groupId>
+                <artifactId>gbcommon</artifactId>
+                <version>${gbstandard.version}</version>
+            </dependency>
+
+            <!--jt808-->
+            <dependency>
+                <groupId>ai.sangmado.gbstandard</groupId>
+                <artifactId>jt808</artifactId>
+                <version>${gbstandard.version}</version>
+            </dependency>
+
+            <!--jt809-->
+            <dependency>
+                <groupId>ai.sangmado.gbstandard</groupId>
+                <artifactId>jt809</artifactId>
+                <version>${gbstandard.version}</version>
+            </dependency>
+
+            <!--netty-codec-jt808-->
+            <dependency>
+                <groupId>ai.sangmado.gbstandard</groupId>
+                <artifactId>netty-codec-jt808</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!--netty-codec-jt809-->
+            <dependency>
+                <groupId>ai.sangmado.gbstandard</groupId>
+                <artifactId>netty-codec-jt809</artifactId>
+                <version>${project.version}</version>
+            </dependency>
+
+            <!--guava-->
+            <dependency>
+                <groupId>com.google.guava</groupId>
+                <artifactId>guava</artifactId>
+                <version>${guava.version}</version>
+            </dependency>
+
+            <!--netty-->
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-all</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+
+            <!--junit-->
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-engine</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-api</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.junit.jupiter</groupId>
+                <artifactId>junit-jupiter-params</artifactId>
+                <version>${junit.version}</version>
+                <scope>test</scope>
+            </dependency>
+            <dependency>
+                <groupId>org.mockito</groupId>
+                <artifactId>mockito-core</artifactId>
+                <version>${mockito.version}</version>
+                <scope>test</scope>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
+
+    <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-compiler-plugin</artifactId>
+                    <version>${maven-compiler-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-jar-plugin</artifactId>
+                    <version>${maven-jar-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-assembly-plugin</artifactId>
+                    <version>${maven-assembly-plugin.version}</version>
+                </plugin>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                    <version>${maven-surefire-plugin.version}</version>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+    </build>
+
+</project>

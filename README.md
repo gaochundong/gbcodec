@@ -1,2 +1,2 @@
 # gbcodec
-A library for netty codec learning.
+这是一个用于学习使用Netty封装codec的类库，暂时仅供记录和学习使用，并无实际意义，概不负责。
