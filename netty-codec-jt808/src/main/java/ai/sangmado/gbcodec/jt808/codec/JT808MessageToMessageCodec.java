@@ -1,8 +1,8 @@
 package ai.sangmado.gbcodec.jt808.codec;
 
-import ai.sangmado.gbstandard.jt808.protocol.ISpecificationContext;
-import ai.sangmado.gbstandard.jt808.protocol.encoding.IJT808MessageBufferReader;
-import ai.sangmado.gbstandard.jt808.protocol.message.JT808MessagePacket;
+import ai.sangmado.gbprotocol.jt808.protocol.ISpecificationContext;
+import ai.sangmado.gbprotocol.jt808.protocol.encoding.IJT808MessageBufferReader;
+import ai.sangmado.gbprotocol.jt808.protocol.message.JT808MessagePacket;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageCodec;

@@ -1,14 +1,14 @@
 package ai.sangmado.gbcodec.jt808.codec;
 
-import ai.sangmado.gbstandard.gbcommon.utils.BCD;
-import ai.sangmado.gbstandard.jt808.protocol.ISpecificationContext;
-import ai.sangmado.gbstandard.jt808.protocol.encoding.IJT808MessageBufferWriter;
+import ai.sangmado.gbprotocol.gbcommon.utils.BCD;
+import ai.sangmado.gbprotocol.jt808.protocol.ISpecificationContext;
+import ai.sangmado.gbprotocol.jt808.protocol.encoding.IJT808MessageBufferWriter;
 import io.netty.buffer.ByteBuf;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-import static ai.sangmado.gbstandard.gbcommon.utils.Bits.*;
+import static ai.sangmado.gbprotocol.gbcommon.utils.Bits.*;
 
 /**
  * 基于 Netty ByteBuf 的写入层实现
