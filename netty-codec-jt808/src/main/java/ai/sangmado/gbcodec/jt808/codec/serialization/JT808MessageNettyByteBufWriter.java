@@ -1,4 +1,4 @@
-package ai.sangmado.gbcodec.jt808.codec;
+package ai.sangmado.gbcodec.jt808.codec.serialization;
 
 import ai.sangmado.gbprotocol.gbcommon.utils.BCD;
 import ai.sangmado.gbprotocol.jt808.protocol.ISpecificationContext;
