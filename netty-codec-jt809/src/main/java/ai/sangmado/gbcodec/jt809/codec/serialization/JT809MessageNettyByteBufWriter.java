@@ -1,8 +1,9 @@
-package ai.sangmado.gbcodec.jt808.codec.serialization;
+package ai.sangmado.gbcodec.jt809.codec.serialization;
 
 import ai.sangmado.gbprotocol.gbcommon.utils.BCD;
-import ai.sangmado.gbprotocol.jt808.protocol.ISpecificationContext;
-import ai.sangmado.gbprotocol.jt808.protocol.serialization.IJT808MessageBufferWriter;
+import ai.sangmado.gbprotocol.jt809.protocol.ISpecificationContext;
+import ai.sangmado.gbprotocol.jt809.protocol.serialization.IJT809MessageBufferWriter;
+import com.google.common.primitives.UnsignedLong;
 import io.netty.buffer.ByteBuf;
 
 import java.nio.ByteBuffer;
@@ -11,13 +12,13 @@ import java.nio.ByteOrder;
 import static ai.sangmado.gbprotocol.gbcommon.utils.Bits.*;
 
 /**
- * 基于 Netty ByteBuf 的 JT808 写入层实现
+ * 基于 Netty ByteBuf 的 JT809 写入层实现
  */
-public class JT808MessageNettyByteBufWriter implements IJT808MessageBufferWriter {
+public class JT809MessageNettyByteBufWriter implements IJT809MessageBufferWriter {
     private ISpecificationContext ctx;
     private ByteBuf buf;
 
-    public JT808MessageNettyByteBufWriter(ISpecificationContext ctx, ByteBuf buf) {
+    public JT809MessageNettyByteBufWriter(ISpecificationContext ctx, ByteBuf buf) {
         this.ctx = ctx;
         this.buf = buf;
     }
@@ -37,7 +38,7 @@ public class JT808MessageNettyByteBufWriter implements IJT808MessageBufferWriter
     }
 
     @Override
-    public void writeWord(int x) {
+    public void writeUInt16(int x) {
         if (isBigEndian()) {
             buf.writeByte(int1(x));
             buf.writeByte(int0(x));
@@ -48,7 +49,7 @@ public class JT808MessageNettyByteBufWriter implements IJT808MessageBufferWriter
     }
 
     @Override
-    public void writeDWord(long x) {
+    public void writeUInt32(long x) {
         if (isBigEndian()) {
             buf.writeByte(long3(x));
             buf.writeByte(long2(x));
@@ -59,6 +60,29 @@ public class JT808MessageNettyByteBufWriter implements IJT808MessageBufferWriter
             buf.writeByte(long1(x));
             buf.writeByte(long2(x));
             buf.writeByte(long3(x));
+        }
+    }
+
+    @Override
+    public void writeUInt64(UnsignedLong x) {
+        if (isBigEndian()) {
+            buf.writeByte(long7(x.longValue()));
+            buf.writeByte(long6(x.longValue()));
+            buf.writeByte(long5(x.longValue()));
+            buf.writeByte(long4(x.longValue()));
+            buf.writeByte(long3(x.longValue()));
+            buf.writeByte(long2(x.longValue()));
+            buf.writeByte(long1(x.longValue()));
+            buf.writeByte(long0(x.longValue()));
+        } else {
+            buf.writeByte(long0(x.longValue()));
+            buf.writeByte(long1(x.longValue()));
+            buf.writeByte(long2(x.longValue()));
+            buf.writeByte(long3(x.longValue()));
+            buf.writeByte(long4(x.longValue()));
+            buf.writeByte(long5(x.longValue()));
+            buf.writeByte(long6(x.longValue()));
+            buf.writeByte(long7(x.longValue()));
         }
     }
 
