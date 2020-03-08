@@ -40,6 +40,11 @@ public class JT808MessageNettyByteBufReader implements IJT808MessageBufferReader
     }
 
     @Override
+    public boolean isReadable(int size) {
+        return buf.isReadable(size);
+    }
+
+    @Override
     public int readableBytes() {
         return buf.readableBytes();
     }

@@ -42,6 +42,11 @@ public class JT809MessageNettyByteBufReader implements IJT809MessageBufferReader
     }
 
     @Override
+    public boolean isReadable(int size) {
+        return buf.isReadable(size);
+    }
+
+    @Override
     public int readableBytes() {
         return buf.readableBytes();
     }
@@ -69,7 +74,6 @@ public class JT809MessageNettyByteBufReader implements IJT809MessageBufferReader
             return (((buf.readByte() & 0xFF)) | ((buf.readByte() & 0xFF) << 8) | ((buf.readByte() & 0xFF) << 16) | ((buf.readByte() & 0xFF) << 24)) & 0xFFFFFFFFL;
         }
     }
-
 
     @Override
     public UnsignedLong readUInt64() {
