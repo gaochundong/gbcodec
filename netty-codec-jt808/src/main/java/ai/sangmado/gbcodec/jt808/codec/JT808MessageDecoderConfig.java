@@ -11,4 +11,8 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 public class JT808MessageDecoderConfig {
+    /**
+     * 解码缓存长度
+     */
+    private int decodedBufferLength = 256;
 }

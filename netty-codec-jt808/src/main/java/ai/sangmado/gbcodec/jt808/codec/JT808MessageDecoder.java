@@ -34,15 +34,18 @@ public class JT808MessageDecoder extends ByteToMessageDecoder {
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) {
-        JT808ProtocolVersion protocolVersion = determineProtocolVersion(in);
-        if (protocolVersion == null) return;
+        // 反转义
+        in.markReaderIndex();
+        ByteBuf msg = readUnescapedBuf(in);
+        in.resetReaderIndex();
+
+        // 判断协议版本
+        msg.markReaderIndex();
+        JT808ProtocolVersion protocolVersion = determineProtocolVersion(msg);
+        msg.resetReaderIndex();
 
         // 使用新的协议上下文
-        JT808ProtocolSpecificationContext newContext = new JT808ProtocolSpecificationContext();
-        newContext.setProtocolVersion(protocolVersion);
-        newContext.setByteOrder(sctx.getByteOrder());
-        newContext.setCharset(sctx.getCharset());
-        newContext.setBufferPool(sctx.getBufferPool());
+        JT808ProtocolSpecificationContext newContext = buildNewContext(protocolVersion);
 
         // 解析消息包
         IJT808MessageBufferReader reader = new JT808MessageNettyByteBufReader(newContext, in);
@@ -53,26 +56,30 @@ public class JT808MessageDecoder extends ByteToMessageDecoder {
     }
 
     /**
+     * 创建新的协议上下文
+     */
+    private JT808ProtocolSpecificationContext buildNewContext(JT808ProtocolVersion protocolVersion) {
+        JT808ProtocolSpecificationContext newContext = new JT808ProtocolSpecificationContext();
+        newContext.setProtocolVersion(protocolVersion);
+        newContext.setByteOrder(sctx.getByteOrder());
+        newContext.setCharset(sctx.getCharset());
+        newContext.setBufferPool(sctx.getBufferPool());
+        return newContext;
+    }
+
+    /**
      * 判断协议版本
      */
-    private JT808ProtocolVersion determineProtocolVersion(ByteBuf in) {
-        // 读取消息头部(头标识+消息ID+消息体属性+协议版本号)，判断协议版本
-        in.markReaderIndex();
-        in.readByte();
-        int readNeeded = 9, readCount = 0;
-        ByteBuf tmpHeaderBuf = Unpooled.buffer(readCount);
-        while (in.isReadable() && (readCount < readNeeded)) {
-            readUnescapedByte(in, tmpHeaderBuf);
-            readCount++;
-        }
-        in.resetReaderIndex();
-        if (!tmpHeaderBuf.isReadable(5)) {
+    private JT808ProtocolVersion determineProtocolVersion(ByteBuf buf) {
+        final int minReadSize = 5;
+        if (!buf.isReadable(minReadSize)) {
             // 当前Buf长度不够读取到消息体属性和协议版本号，则放弃
-            return null;
+            throw new UnsupportedJT808ProtocolVersionException(String.format(
+                    "消息Buffer长度不足够, 长度[%s], 需要[%s]", buf.readableBytes(), minReadSize));
         }
-        int messageId = readWord(tmpHeaderBuf);
-        int messageContentProperty = readWord(tmpHeaderBuf);
-        int versionNumber = tmpHeaderBuf.readByte() & 0xFF;
+        int messageId = readWord(buf);
+        int messageContentProperty = readWord(buf);
+        int versionNumber = buf.readByte() & 0xFF;
 
         // 通过消息体属性格式中第14位版本位尝试判断协议版本
         if ((messageContentProperty >> 14 & 0x01) == 1) {
@@ -100,6 +107,17 @@ public class JT808MessageDecoder extends ByteToMessageDecoder {
         } else {
             return (((buf.readByte() & 0xFF)) | ((buf.readByte() & 0xFF) << 8)) & 0xFFFF;
         }
+    }
+
+    /**
+     * 将整体Buffer进行反转义
+     */
+    private ByteBuf readUnescapedBuf(ByteBuf in) {
+        ByteBuf unescapedBuf = Unpooled.buffer(config.getDecodedBufferLength());
+        while (in.isReadable()) {
+            readUnescapedByte(in, unescapedBuf);
+        }
+        return unescapedBuf;
     }
 
     /**

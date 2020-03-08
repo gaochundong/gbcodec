@@ -29,10 +29,10 @@ public class JT808MessageEncoder<T extends IJT808Message> extends MessageToMessa
     }
 
     @Override
+    @SuppressWarnings({"unchecked", "CastConflictsWithInstanceof"})
     protected void encode(ChannelHandlerContext ctx, Object msg, List<Object> out) throws Exception {
         ByteBuf buf = null;
         if (msg instanceof IJT808Message) {
-            @SuppressWarnings({"unchecked", "CastConflictsWithInstanceof"})
             T m = (T) msg;
             buf = ctx.alloc().buffer(config.getEncodedBufferLength());
             encodeMessage(buf, m);
@@ -44,14 +44,19 @@ public class JT808MessageEncoder<T extends IJT808Message> extends MessageToMessa
 
     private void encodeMessage(ByteBuf buf, T message) {
         // 使用新的协议上下文
+        JT808ProtocolSpecificationContext newContext = buildNewContext(message);
+
+        // 序列化消息
+        IJT808MessageBufferWriter writer = new JT808MessageNettyByteBufWriter(newContext, buf);
+        message.serialize(newContext, writer);
+    }
+
+    private JT808ProtocolSpecificationContext buildNewContext(T message) {
         JT808ProtocolSpecificationContext newContext = new JT808ProtocolSpecificationContext();
         newContext.setProtocolVersion(message.getProtocolVersion());
         newContext.setByteOrder(sctx.getByteOrder());
         newContext.setCharset(sctx.getCharset());
         newContext.setBufferPool(sctx.getBufferPool());
-
-        // 序列化消息
-        IJT808MessageBufferWriter writer = new JT808MessageNettyByteBufWriter(newContext, buf);
-        message.serialize(newContext, writer);
+        return newContext;
     }
 }
