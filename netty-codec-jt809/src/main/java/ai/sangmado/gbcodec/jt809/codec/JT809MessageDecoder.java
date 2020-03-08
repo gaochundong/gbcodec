@@ -15,12 +15,18 @@ import java.util.List;
 /**
  * JT809 协议解码器
  */
-@SuppressWarnings("FieldCanBeLocal")
+@SuppressWarnings({"FieldCanBeLocal", "unused"})
 public class JT809MessageDecoder extends ByteToMessageDecoder {
     private ISpecificationContext sctx;
+    private JT809MessageDecoderConfig config;
 
     public JT809MessageDecoder(ISpecificationContext sctx) {
+        this(sctx, new JT809MessageDecoderConfig());
+    }
+
+    public JT809MessageDecoder(ISpecificationContext sctx, JT809MessageDecoderConfig config) {
         this.sctx = sctx;
+        this.config = config;
     }
 
     @Override

@@ -18,12 +18,18 @@ import java.util.List;
 /**
  * JT808 协议解码器
  */
-@SuppressWarnings("FieldCanBeLocal")
+@SuppressWarnings({"FieldCanBeLocal", "unused"})
 public class JT808MessageDecoder extends ByteToMessageDecoder {
     private ISpecificationContext sctx;
+    private JT808MessageDecoderConfig config;
 
     public JT808MessageDecoder(ISpecificationContext sctx) {
+        this(sctx, new JT808MessageDecoderConfig());
+    }
+
+    public JT808MessageDecoder(ISpecificationContext sctx, JT808MessageDecoderConfig config) {
         this.sctx = sctx;
+        this.config = config;
     }
 
     @Override

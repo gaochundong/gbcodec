@@ -14,12 +14,18 @@ import java.util.List;
 /**
  * JT808 协议编码器
  */
-@SuppressWarnings("FieldCanBeLocal")
+@SuppressWarnings({"FieldCanBeLocal", "unused"})
 public class JT808MessageEncoder<T extends IJT808Message> extends MessageToMessageEncoder<Object> {
     private ISpecificationContext sctx;
+    private JT808MessageEncoderConfig config;
 
     public JT808MessageEncoder(ISpecificationContext sctx) {
+        this(sctx, new JT808MessageEncoderConfig());
+    }
+
+    public JT808MessageEncoder(ISpecificationContext sctx, JT808MessageEncoderConfig config) {
         this.sctx = sctx;
+        this.config = config;
     }
 
     @Override
@@ -28,7 +34,7 @@ public class JT808MessageEncoder<T extends IJT808Message> extends MessageToMessa
         if (msg instanceof IJT808Message) {
             @SuppressWarnings({"unchecked", "CastConflictsWithInstanceof"})
             T m = (T) msg;
-            buf = ctx.alloc().buffer(256);
+            buf = ctx.alloc().buffer(config.getEncodedBufferLength());
             encodeMessage(buf, m);
         }
         if (buf != null) {

@@ -14,12 +14,18 @@ import java.util.List;
 /**
  * JT809 协议编码器
  */
-@SuppressWarnings("FieldCanBeLocal")
+@SuppressWarnings({"FieldCanBeLocal", "unused"})
 public class JT809MessageEncoder<T extends IJT809Message> extends MessageToMessageEncoder<Object> {
     private ISpecificationContext sctx;
+    private JT809MessageEncoderConfig config;
 
     public JT809MessageEncoder(ISpecificationContext sctx) {
+        this(sctx, new JT809MessageEncoderConfig());
+    }
+
+    public JT809MessageEncoder(ISpecificationContext sctx, JT809MessageEncoderConfig config) {
         this.sctx = sctx;
+        this.config = config;
     }
 
     @Override
@@ -28,7 +34,7 @@ public class JT809MessageEncoder<T extends IJT809Message> extends MessageToMessa
         if (msg instanceof IJT809Message) {
             @SuppressWarnings({"unchecked", "CastConflictsWithInstanceof"})
             T m = (T) msg;
-            buf = ctx.alloc().buffer(256);
+            buf = ctx.alloc().buffer(config.getEncodedBufferLength());
             encodeMessage(buf, m);
         }
         if (buf != null) {
