@@ -9,12 +9,14 @@ import ai.sangmado.gbprotocol.jt809.protocol.serialization.IJT809MessageBufferRe
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
 /**
  * JT809 协议解码器
  */
+@Slf4j
 @SuppressWarnings({"FieldCanBeLocal", "unused"})
 public class JT809MessageDecoder extends ByteToMessageDecoder {
     private ISpecificationContext sctx;

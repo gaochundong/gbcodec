@@ -6,14 +6,17 @@ import ai.sangmado.gbprotocol.jt808.protocol.JT808ProtocolSpecificationContext;
 import ai.sangmado.gbprotocol.jt808.protocol.message.IJT808Message;
 import ai.sangmado.gbprotocol.jt808.protocol.serialization.IJT808MessageBufferWriter;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageEncoder;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
 /**
  * JT808 协议编码器
  */
+@Slf4j
 @SuppressWarnings({"FieldCanBeLocal", "unused"})
 public class JT808MessageEncoder<T extends IJT808Message> extends MessageToMessageEncoder<Object> {
     private ISpecificationContext sctx;
@@ -31,15 +34,20 @@ public class JT808MessageEncoder<T extends IJT808Message> extends MessageToMessa
     @Override
     @SuppressWarnings({"unchecked", "CastConflictsWithInstanceof"})
     protected void encode(ChannelHandlerContext ctx, Object msg, List<Object> out) throws Exception {
-        ByteBuf buf = null;
-        if (msg instanceof IJT808Message) {
-            T m = (T) msg;
-            buf = ctx.alloc().buffer(config.getEncodedBufferLength());
-            encodeMessage(buf, m);
+        if (!(msg instanceof IJT808Message)) {
+            return;
         }
-        if (buf != null) {
-            out.add(buf);
-        }
+
+        T m = (T) msg;
+        ByteBuf buf = ctx.alloc().buffer(config.getEncodedBufferLength());
+        encodeMessage(buf, m);
+        log.info("编码器接收到消息, 协议版本[{}], 消息ID[{}], 编码后长度[{}]",
+                m.getProtocolVersion().getName(), m.getMessageId().getName(), buf.readableBytes());
+        buf.markReaderIndex();
+        log.info("{}{}", System.lineSeparator(), ByteBufUtil.prettyHexDump(buf));
+        buf.resetReaderIndex();
+
+        out.add(buf);
     }
 
     private void encodeMessage(ByteBuf buf, T message) {

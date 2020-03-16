@@ -3,10 +3,12 @@ package ai.sangmado.gbcodec.jt808.codec;
 import ai.sangmado.gbprotocol.jt808.protocol.ISpecificationContext;
 import ai.sangmado.gbprotocol.jt808.protocol.message.JT808MessagePacket;
 import io.netty.channel.CombinedChannelDuplexHandler;
+import lombok.extern.slf4j.Slf4j;
 
 /**
  * JT808 协议编解码器
  */
+@Slf4j
 @SuppressWarnings("FieldCanBeLocal")
 public final class JT808MessageCodec extends CombinedChannelDuplexHandler<JT808MessageDecoder, JT808MessageEncoder<JT808MessagePacket>> {
     private ISpecificationContext sctx;

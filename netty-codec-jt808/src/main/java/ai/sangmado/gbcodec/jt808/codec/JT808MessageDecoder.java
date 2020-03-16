@@ -8,9 +8,11 @@ import ai.sangmado.gbprotocol.jt808.protocol.exceptions.UnsupportedJT808Protocol
 import ai.sangmado.gbprotocol.jt808.protocol.message.JT808MessagePacket;
 import ai.sangmado.gbprotocol.jt808.protocol.serialization.IJT808MessageBufferReader;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
+import lombok.extern.slf4j.Slf4j;
 
 import java.nio.ByteOrder;
 import java.util.List;
@@ -18,6 +20,7 @@ import java.util.List;
 /**
  * JT808 协议解码器
  */
+@Slf4j
 @SuppressWarnings({"FieldCanBeLocal", "unused"})
 public class JT808MessageDecoder extends ByteToMessageDecoder {
     private ISpecificationContext sctx;
@@ -34,6 +37,12 @@ public class JT808MessageDecoder extends ByteToMessageDecoder {
 
     @Override
     protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) {
+        // 检查Buffer长度
+        final int minReadSize = 5;
+        if (!in.isReadable(minReadSize)) {
+            return;
+        }
+
         // 反转义
         in.markReaderIndex();
         ByteBuf msg = readUnescapedBuf(in);
@@ -42,6 +51,11 @@ public class JT808MessageDecoder extends ByteToMessageDecoder {
         // 判断协议版本
         msg.markReaderIndex();
         JT808ProtocolVersion protocolVersion = determineProtocolVersion(msg);
+        msg.resetReaderIndex();
+        log.info("解码器接收到消息, 原始长度[{}], 转义后长度[{}], 识别协议版本[{}]",
+                in.readableBytes(), msg.readableBytes(), protocolVersion.getName());
+        msg.markReaderIndex();
+        log.info("{}{}", System.lineSeparator(), ByteBufUtil.prettyHexDump(msg));
         msg.resetReaderIndex();
 
         // 使用新的协议上下文
@@ -77,6 +91,7 @@ public class JT808MessageDecoder extends ByteToMessageDecoder {
             throw new UnsupportedJT808ProtocolVersionException(String.format(
                     "消息Buffer长度不足够, 长度[%s], 需要[%s]", buf.readableBytes(), minReadSize));
         }
+        buf.readByte(); // 头标识
         int messageId = readWord(buf);
         int messageContentProperty = readWord(buf);
         int versionNumber = buf.readByte() & 0xFF;

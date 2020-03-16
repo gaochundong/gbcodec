@@ -8,12 +8,14 @@ import ai.sangmado.gbprotocol.jt809.protocol.serialization.IJT809MessageBufferWr
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToMessageEncoder;
+import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
 
 /**
  * JT809 协议编码器
  */
+@Slf4j
 @SuppressWarnings({"FieldCanBeLocal", "unused"})
 public class JT809MessageEncoder<T extends IJT809Message> extends MessageToMessageEncoder<Object> {
     private ISpecificationContext sctx;
@@ -29,17 +31,19 @@ public class JT809MessageEncoder<T extends IJT809Message> extends MessageToMessa
     }
 
     @Override
+    @SuppressWarnings({"unchecked", "CastConflictsWithInstanceof"})
     protected void encode(ChannelHandlerContext ctx, Object msg, List<Object> out) throws Exception {
-        ByteBuf buf = null;
-        if (msg instanceof IJT809Message) {
-            @SuppressWarnings({"unchecked", "CastConflictsWithInstanceof"})
-            T m = (T) msg;
-            buf = ctx.alloc().buffer(config.getEncodedBufferLength());
-            encodeMessage(buf, m);
+        if (!(msg instanceof IJT809Message)) {
+            return;
         }
-        if (buf != null) {
-            out.add(buf);
-        }
+
+        T m = (T) msg;
+        ByteBuf buf = ctx.alloc().buffer(config.getEncodedBufferLength());
+        encodeMessage(buf, m);
+        log.info("对版本[{}]消息[{}]进行编码, 编码后长度[{}]",
+                m.getProtocolVersion().getName(), m.getMessageId().getName(), buf.readableBytes());
+
+        out.add(buf);
     }
 
     private void encodeMessage(ByteBuf buf, T message) {
