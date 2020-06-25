@@ -40,8 +40,11 @@ public class JT809MessageEncoder<T extends IJT809Message> extends MessageToMessa
         T m = (T) msg;
         ByteBuf buf = ctx.alloc().buffer(config.getEncodedBufferLength());
         encodeMessage(buf, m);
-        log.info("对版本[{}]消息[{}]进行编码, 编码后长度[{}]",
-                m.getProtocolVersion().getName(), m.getMessageId().getName(), buf.readableBytes());
+        log.info("编码器接收到消息, 协议版本[{}], 消息ID[{}], 消息名称[{}], 编码后长度[{}]",
+                m.getProtocolVersion().getName(),
+                m.getMessageId().getName(),
+                m.getMessageId().getDescription(),
+                buf.readableBytes());
 
         out.add(buf);
     }

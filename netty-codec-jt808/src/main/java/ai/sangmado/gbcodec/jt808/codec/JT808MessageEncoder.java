@@ -41,8 +41,12 @@ public class JT808MessageEncoder<T extends IJT808Message> extends MessageToMessa
         T m = (T) msg;
         ByteBuf buf = ctx.alloc().buffer(config.getEncodedBufferLength());
         encodeMessage(buf, m);
-        log.info("编码器接收到消息, 协议版本[{}], 消息ID[{}], 编码后长度[{}]",
-                m.getProtocolVersion().getName(), m.getMessageId().getName(), buf.readableBytes());
+        log.info("编码器接收到消息, 协议版本[{}], 消息ID[{}], 消息名称[{}], 编码后长度[{}]",
+                m.getProtocolVersion().getName(),
+                m.getMessageId().getName(),
+                m.getMessageId().getDescription(),
+                buf.readableBytes());
+
         buf.markReaderIndex();
         log.info("{}{}", System.lineSeparator(), ByteBufUtil.prettyHexDump(buf));
         buf.resetReaderIndex();
