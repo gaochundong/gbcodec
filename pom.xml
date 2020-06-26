@@ -28,7 +28,7 @@
         <!--dependencies-->
         <lombok.version>1.18.8</lombok.version>
         <guava.version>28.1-jre</guava.version>
-        <netty.version>4.1.45.Final</netty.version>
+        <netty.version>4.1.50.Final</netty.version>
         <slf4j.version>1.7.30</slf4j.version>
         <logback.version>1.2.3</logback.version>
 
@@ -103,7 +103,22 @@
             <!--netty-->
             <dependency>
                 <groupId>io.netty</groupId>
-                <artifactId>netty-all</artifactId>
+                <artifactId>netty-common</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-buffer</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-handler</artifactId>
+                <version>${netty.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>io.netty</groupId>
+                <artifactId>netty-codec</artifactId>
                 <version>${netty.version}</version>
             </dependency>
 
