@@ -108,7 +108,7 @@ public class JT808MessageDecoder extends ByteToMessageDecoder {
             }
         } else {
             // 2013版本与2011版本相同，此标记位为0.
-            return JT808ProtocolVersion.V2013;
+            return JT808ProtocolVersion.V2011;
         }
     }
 
