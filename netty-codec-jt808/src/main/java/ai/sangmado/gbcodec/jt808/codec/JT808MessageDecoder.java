@@ -5,8 +5,7 @@ import ai.sangmado.gbprotocol.jt808.protocol.ISpecificationContext;
 import ai.sangmado.gbprotocol.jt808.protocol.JT808ProtocolSpecificationContext;
 import ai.sangmado.gbprotocol.jt808.protocol.enums.JT808ProtocolVersion;
 import ai.sangmado.gbprotocol.jt808.protocol.exceptions.UnsupportedJT808ProtocolVersionException;
-import ai.sangmado.gbprotocol.jt808.protocol.message.JT808MessagePacket;
-import ai.sangmado.gbprotocol.jt808.protocol.serialization.IJT808MessageBufferReader;
+import ai.sangmado.gbprotocol.jt808.protocol.message.IJT808VersioningMessage;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.ByteBufUtil;
 import io.netty.buffer.Unpooled;
@@ -16,22 +15,25 @@ import lombok.extern.slf4j.Slf4j;
 
 import java.nio.ByteOrder;
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * JT808 协议解码器
  */
 @Slf4j
 @SuppressWarnings({"FieldCanBeLocal", "unused"})
-public class JT808MessageDecoder extends ByteToMessageDecoder {
-    private ISpecificationContext sctx;
-    private JT808MessageDecoderConfig config;
+public class JT808MessageDecoder<T extends IJT808VersioningMessage> extends ByteToMessageDecoder {
+    private final ISpecificationContext sctx;
+    private final Supplier<T> messageSupplier;
+    private final JT808MessageDecoderConfig config;
 
-    public JT808MessageDecoder(ISpecificationContext sctx) {
-        this(sctx, new JT808MessageDecoderConfig());
+    public JT808MessageDecoder(ISpecificationContext sctx, Supplier<T> messageSupplier) {
+        this(sctx, messageSupplier, new JT808MessageDecoderConfig());
     }
 
-    public JT808MessageDecoder(ISpecificationContext sctx, JT808MessageDecoderConfig config) {
+    public JT808MessageDecoder(ISpecificationContext sctx, Supplier<T> messageSupplier, JT808MessageDecoderConfig config) {
         this.sctx = sctx;
+        this.messageSupplier = messageSupplier;
         this.config = config;
     }
 
@@ -59,20 +61,19 @@ public class JT808MessageDecoder extends ByteToMessageDecoder {
         msg.resetReaderIndex();
 
         // 使用新的协议上下文
-        JT808ProtocolSpecificationContext newContext = buildNewContext(protocolVersion);
+        JT808ProtocolSpecificationContext newContext = buildCoordinatedContext(protocolVersion);
 
         // 解析消息包
-        IJT808MessageBufferReader reader = new JT808MessageNettyByteBufReader(newContext, in);
-        JT808MessagePacket packet = new JT808MessagePacket();
-        packet.deserialize(newContext, reader);
+        T message = messageSupplier.get();
+        message.deserialize(newContext, new JT808MessageNettyByteBufReader(newContext, in));
 
-        out.add(packet);
+        out.add(message);
     }
 
     /**
      * 创建新的协议上下文
      */
-    private JT808ProtocolSpecificationContext buildNewContext(JT808ProtocolVersion protocolVersion) {
+    private JT808ProtocolSpecificationContext buildCoordinatedContext(JT808ProtocolVersion protocolVersion) {
         JT808ProtocolSpecificationContext newContext = new JT808ProtocolSpecificationContext();
         newContext.setProtocolVersion(protocolVersion);
         newContext.setByteOrder(sctx.getByteOrder());

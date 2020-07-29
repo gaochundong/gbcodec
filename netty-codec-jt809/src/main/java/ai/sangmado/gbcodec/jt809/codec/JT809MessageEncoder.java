@@ -3,7 +3,7 @@ package ai.sangmado.gbcodec.jt809.codec;
 import ai.sangmado.gbcodec.jt809.codec.serialization.JT809MessageNettyByteBufWriter;
 import ai.sangmado.gbprotocol.jt809.protocol.ISpecificationContext;
 import ai.sangmado.gbprotocol.jt809.protocol.JT809ProtocolSpecificationContext;
-import ai.sangmado.gbprotocol.jt809.protocol.message.IJT809Message;
+import ai.sangmado.gbprotocol.jt809.protocol.message.IJT809VersioningMessage;
 import ai.sangmado.gbprotocol.jt809.protocol.serialization.IJT809MessageBufferWriter;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -17,9 +17,9 @@ import java.util.List;
  */
 @Slf4j
 @SuppressWarnings({"FieldCanBeLocal", "unused"})
-public class JT809MessageEncoder<T extends IJT809Message> extends MessageToMessageEncoder<Object> {
-    private ISpecificationContext sctx;
-    private JT809MessageEncoderConfig config;
+public class JT809MessageEncoder<T extends IJT809VersioningMessage> extends MessageToMessageEncoder<Object> {
+    private final ISpecificationContext sctx;
+    private final JT809MessageEncoderConfig config;
 
     public JT809MessageEncoder(ISpecificationContext sctx) {
         this(sctx, new JT809MessageEncoderConfig());
@@ -31,13 +31,13 @@ public class JT809MessageEncoder<T extends IJT809Message> extends MessageToMessa
     }
 
     @Override
-    @SuppressWarnings({"unchecked", "CastConflictsWithInstanceof"})
+    @SuppressWarnings({"CastConflictsWithInstanceof"})
     protected void encode(ChannelHandlerContext ctx, Object msg, List<Object> out) throws Exception {
-        if (!(msg instanceof IJT809Message)) {
+        if (!(msg instanceof IJT809VersioningMessage)) {
             return;
         }
 
-        T m = (T) msg;
+        IJT809VersioningMessage m = (IJT809VersioningMessage) msg;
         ByteBuf buf = ctx.alloc().buffer(config.getEncodedBufferLength());
         encodeMessage(buf, m);
         log.info("编码器接收到消息, 协议版本[{}], 消息ID[{}], 消息名称[{}], 编码后长度[{}]",
@@ -49,7 +49,7 @@ public class JT809MessageEncoder<T extends IJT809Message> extends MessageToMessa
         out.add(buf);
     }
 
-    private void encodeMessage(ByteBuf buf, T message) {
+    private void encodeMessage(ByteBuf buf, IJT809VersioningMessage message) {
         // 使用新的协议上下文
         JT809ProtocolSpecificationContext newContext = new JT809ProtocolSpecificationContext();
         newContext.setProtocolVersion(message.getProtocolVersion());

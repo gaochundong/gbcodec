@@ -4,30 +4,32 @@ import ai.sangmado.gbcodec.jt809.codec.serialization.JT809MessageNettyByteBufRea
 import ai.sangmado.gbprotocol.jt809.protocol.ISpecificationContext;
 import ai.sangmado.gbprotocol.jt809.protocol.JT809ProtocolSpecificationContext;
 import ai.sangmado.gbprotocol.jt809.protocol.enums.JT809ProtocolVersion;
-import ai.sangmado.gbprotocol.jt809.protocol.message.JT809MessagePacket;
-import ai.sangmado.gbprotocol.jt809.protocol.serialization.IJT809MessageBufferReader;
+import ai.sangmado.gbprotocol.jt809.protocol.message.IJT809VersioningMessage;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import lombok.extern.slf4j.Slf4j;
 
 import java.util.List;
+import java.util.function.Supplier;
 
 /**
  * JT809 协议解码器
  */
 @Slf4j
 @SuppressWarnings({"FieldCanBeLocal", "unused"})
-public class JT809MessageDecoder extends ByteToMessageDecoder {
-    private ISpecificationContext sctx;
-    private JT809MessageDecoderConfig config;
+public class JT809MessageDecoder<T extends IJT809VersioningMessage> extends ByteToMessageDecoder {
+    private final ISpecificationContext sctx;
+    private final Supplier<T> messageSupplier;
+    private final JT809MessageDecoderConfig config;
 
-    public JT809MessageDecoder(ISpecificationContext sctx) {
-        this(sctx, new JT809MessageDecoderConfig());
+    public JT809MessageDecoder(ISpecificationContext sctx, Supplier<T> messageSupplier) {
+        this(sctx, messageSupplier, new JT809MessageDecoderConfig());
     }
 
-    public JT809MessageDecoder(ISpecificationContext sctx, JT809MessageDecoderConfig config) {
+    public JT809MessageDecoder(ISpecificationContext sctx, Supplier<T> messageSupplier, JT809MessageDecoderConfig config) {
         this.sctx = sctx;
+        this.messageSupplier = messageSupplier;
         this.config = config;
     }
 
@@ -45,10 +47,9 @@ public class JT809MessageDecoder extends ByteToMessageDecoder {
         newContext.setBufferPool(sctx.getBufferPool());
 
         // 解析消息包
-        IJT809MessageBufferReader reader = new JT809MessageNettyByteBufReader(newContext, in);
-        JT809MessagePacket packet = new JT809MessagePacket();
-        packet.deserialize(newContext, reader);
+        T message = messageSupplier.get();
+        message.deserialize(newContext, new JT809MessageNettyByteBufReader(newContext, in));
 
-        out.add(packet);
+        out.add(message);
     }
 }
