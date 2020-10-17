@@ -2,7 +2,8 @@ package ai.sangmado.gbcodec.jt808.codec;
 
 import ai.sangmado.gbcodec.jt808.codec.serialization.JT808MessageNettyByteBufWriter;
 import ai.sangmado.gbprotocol.jt808.protocol.ISpecificationContext;
-import ai.sangmado.gbprotocol.jt808.protocol.JT808ProtocolSpecificationContext;
+import ai.sangmado.gbprotocol.jt808.protocol.IVersionedSpecificationContext;
+import ai.sangmado.gbprotocol.jt808.protocol.JT808ProtocolVersionedSpecificationContext;
 import ai.sangmado.gbprotocol.jt808.protocol.message.IJT808VersioningMessage;
 import ai.sangmado.gbprotocol.jt808.protocol.serialization.IJT808MessageBufferWriter;
 import io.netty.buffer.ByteBuf;
@@ -55,20 +56,12 @@ public class JT808MessageEncoder<T extends IJT808VersioningMessage> extends Mess
     }
 
     private void encodeMessage(ByteBuf buf, IJT808VersioningMessage message) {
-        // 使用新的协议上下文
-        JT808ProtocolSpecificationContext newContext = buildCoordinatedContext(message);
+        // 使用新的协议版本上下文
+        IVersionedSpecificationContext versionedContext =
+                JT808ProtocolVersionedSpecificationContext.buildFrom(message.getProtocolVersion(), sctx);
 
         // 序列化消息
-        IJT808MessageBufferWriter writer = new JT808MessageNettyByteBufWriter(newContext, buf);
-        message.serialize(newContext, writer);
-    }
-
-    private JT808ProtocolSpecificationContext buildCoordinatedContext(IJT808VersioningMessage message) {
-        JT808ProtocolSpecificationContext newContext = new JT808ProtocolSpecificationContext();
-        newContext.setProtocolVersion(message.getProtocolVersion());
-        newContext.setByteOrder(sctx.getByteOrder());
-        newContext.setCharset(sctx.getCharset());
-        newContext.setBufferPool(sctx.getBufferPool());
-        return newContext;
+        IJT808MessageBufferWriter writer = new JT808MessageNettyByteBufWriter(versionedContext, buf);
+        message.serialize(versionedContext, writer);
     }
 }

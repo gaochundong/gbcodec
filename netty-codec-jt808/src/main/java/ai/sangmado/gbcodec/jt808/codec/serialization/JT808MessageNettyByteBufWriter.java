@@ -2,6 +2,7 @@ package ai.sangmado.gbcodec.jt808.codec.serialization;
 
 import ai.sangmado.gbprotocol.gbcommon.utils.BCD;
 import ai.sangmado.gbprotocol.jt808.protocol.ISpecificationContext;
+import ai.sangmado.gbprotocol.jt808.protocol.IVersionedSpecificationContext;
 import ai.sangmado.gbprotocol.jt808.protocol.serialization.IJT808MessageBufferWriter;
 import io.netty.buffer.ByteBuf;
 
@@ -14,10 +15,10 @@ import static ai.sangmado.gbprotocol.gbcommon.utils.Bits.*;
  * 基于 Netty ByteBuf 的 JT808 写入层实现
  */
 public class JT808MessageNettyByteBufWriter implements IJT808MessageBufferWriter {
-    private ISpecificationContext ctx;
-    private ByteBuf buf;
+    private final IVersionedSpecificationContext ctx;
+    private final ByteBuf buf;
 
-    public JT808MessageNettyByteBufWriter(ISpecificationContext ctx, ByteBuf buf) {
+    public JT808MessageNettyByteBufWriter(IVersionedSpecificationContext ctx, ByteBuf buf) {
         this.ctx = ctx;
         this.buf = buf;
     }

@@ -2,7 +2,8 @@ package ai.sangmado.gbcodec.jt809.codec;
 
 import ai.sangmado.gbcodec.jt809.codec.serialization.JT809MessageNettyByteBufReader;
 import ai.sangmado.gbprotocol.jt809.protocol.ISpecificationContext;
-import ai.sangmado.gbprotocol.jt809.protocol.JT809ProtocolSpecificationContext;
+import ai.sangmado.gbprotocol.jt809.protocol.IVersionedSpecificationContext;
+import ai.sangmado.gbprotocol.jt809.protocol.JT809ProtocolVersionedSpecificationContext;
 import ai.sangmado.gbprotocol.jt809.protocol.enums.JT809ProtocolVersion;
 import ai.sangmado.gbprotocol.jt809.protocol.message.IJT809VersioningMessage;
 import io.netty.buffer.ByteBuf;
@@ -38,17 +39,13 @@ public class JT809MessageDecoder<T extends IJT809VersioningMessage> extends Byte
         JT809ProtocolVersion protocolVersion = JT809ProtocolVersion.V2011;
         //if (protocolVersion == null) return;
 
-        // 使用新的协议上下文
-        JT809ProtocolSpecificationContext newContext = new JT809ProtocolSpecificationContext();
-        newContext.setProtocolVersion(protocolVersion);
-        newContext.setByteOrder(sctx.getByteOrder());
-        newContext.setCharset(sctx.getCharset());
-        newContext.setMessageContentEncryptionOptions(sctx.getMessageContentEncryptionOptions());
-        newContext.setBufferPool(sctx.getBufferPool());
+        // 使用新的协议版本上下文
+        IVersionedSpecificationContext versionedContext =
+                JT809ProtocolVersionedSpecificationContext.buildFrom(protocolVersion, sctx);
 
         // 解析消息包
         T message = messageSupplier.get();
-        message.deserialize(newContext, new JT809MessageNettyByteBufReader(newContext, in));
+        message.deserialize(versionedContext, new JT809MessageNettyByteBufReader(versionedContext, in));
 
         out.add(message);
     }

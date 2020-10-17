@@ -2,7 +2,8 @@ package ai.sangmado.gbcodec.jt808.codec;
 
 import ai.sangmado.gbcodec.jt808.codec.serialization.JT808MessageNettyByteBufReader;
 import ai.sangmado.gbprotocol.jt808.protocol.ISpecificationContext;
-import ai.sangmado.gbprotocol.jt808.protocol.JT808ProtocolSpecificationContext;
+import ai.sangmado.gbprotocol.jt808.protocol.IVersionedSpecificationContext;
+import ai.sangmado.gbprotocol.jt808.protocol.JT808ProtocolVersionedSpecificationContext;
 import ai.sangmado.gbprotocol.jt808.protocol.enums.JT808ProtocolVersion;
 import ai.sangmado.gbprotocol.jt808.protocol.exceptions.UnsupportedJT808ProtocolVersionException;
 import ai.sangmado.gbprotocol.jt808.protocol.message.IJT808VersioningMessage;
@@ -60,26 +61,15 @@ public class JT808MessageDecoder<T extends IJT808VersioningMessage> extends Byte
         log.info("{}{}", System.lineSeparator(), ByteBufUtil.prettyHexDump(msg));
         msg.resetReaderIndex();
 
-        // 使用新的协议上下文
-        JT808ProtocolSpecificationContext newContext = buildCoordinatedContext(protocolVersion);
+        // 使用新的协议版本上下文
+        IVersionedSpecificationContext versionedContext =
+                JT808ProtocolVersionedSpecificationContext.buildFrom(protocolVersion, sctx);
 
         // 解析消息包
         T message = messageSupplier.get();
-        message.deserialize(newContext, new JT808MessageNettyByteBufReader(newContext, in));
+        message.deserialize(versionedContext, new JT808MessageNettyByteBufReader(versionedContext, in));
 
         out.add(message);
-    }
-
-    /**
-     * 创建新的协议上下文
-     */
-    private JT808ProtocolSpecificationContext buildCoordinatedContext(JT808ProtocolVersion protocolVersion) {
-        JT808ProtocolSpecificationContext newContext = new JT808ProtocolSpecificationContext();
-        newContext.setProtocolVersion(protocolVersion);
-        newContext.setByteOrder(sctx.getByteOrder());
-        newContext.setCharset(sctx.getCharset());
-        newContext.setBufferPool(sctx.getBufferPool());
-        return newContext;
     }
 
     /**
