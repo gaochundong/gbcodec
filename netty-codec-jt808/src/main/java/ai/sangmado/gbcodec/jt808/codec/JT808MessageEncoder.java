@@ -39,6 +39,7 @@ public class JT808MessageEncoder<T extends IJT808VersioningMessage> extends Mess
             return;
         }
 
+        // 对消息对象进行编码
         IJT808VersioningMessage m = (IJT808VersioningMessage) msg;
         ByteBuf buf = ctx.alloc().buffer(config.getEncodedBufferLength());
         encodeMessage(buf, m);
@@ -48,6 +49,7 @@ public class JT808MessageEncoder<T extends IJT808VersioningMessage> extends Mess
                 m.getMessageId().getDescription(),
                 buf.readableBytes());
 
+        // 输出即将发送消息详情
         buf.markReaderIndex();
         log.info("{}{}", System.lineSeparator(), ByteBufUtil.prettyHexDump(buf));
         buf.resetReaderIndex();

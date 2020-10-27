@@ -57,6 +57,8 @@ public class JT808MessageDecoder<T extends IJT808VersioningMessage> extends Byte
         msg.resetReaderIndex();
         log.info("解码器接收到消息, 原始长度[{}], 转义后长度[{}], 识别协议版本[{}]",
                 in.readableBytes(), msg.readableBytes(), protocolVersion.getName());
+
+        // 输出接收到消息详情
         msg.markReaderIndex();
         log.info("{}{}", System.lineSeparator(), ByteBufUtil.prettyHexDump(msg));
         msg.resetReaderIndex();
@@ -89,17 +91,18 @@ public class JT808MessageDecoder<T extends IJT808VersioningMessage> extends Byte
 
         // 通过消息体属性格式中第14位版本位尝试判断协议版本
         if ((messageContentProperty >> 14 & 0x01) == 1) {
-            // 2019版本，此标记位为1.
             if (versionNumber == 1) {
+                // 2019版本，此版本号为1
                 return JT808ProtocolVersion.V2019;
             } else {
+                // 暂无其他版本号
                 throw new UnsupportedJT808ProtocolVersionException(String.format(
                         "协议版本不支持，消息ID[%s]，消息体属性[%s]，协议版本号[%s]",
                         messageId, messageContentProperty, versionNumber));
             }
         } else {
-            // 2013版本与2011版本相同，此标记位为0.
-            return JT808ProtocolVersion.V2011;
+            // 2011版本与2013版本此标记位均为0，所以无法区分这两个版本，则需要根据其他消息等进行二次区分。
+            return JT808ProtocolVersion.V2013;
         }
     }
 
